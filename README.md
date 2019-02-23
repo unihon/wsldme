@@ -66,6 +66,7 @@ dhcp_upperip="192.168.22.254"
 
 ``` bash
 $ chmod 755 /tmp/wsldme.sh && mv -i /tmp/wsldme.sh /usr/local/bin/wsldme
+$ wsldme version
 ```
 
 ## wsldme使用方法
@@ -77,7 +78,7 @@ Usage: wsldme [OPTIONS] COMMAND
 | docker-machine | wsldme | 说明 |
 | - | - | - |
 | ~~docker-machine create --driver=virtualbox d-test~~ | wsldme create  d-test | 创建Docker Engine |
-| ~~cocker-machine rm d-test~~ | wsldme rm d-test | 删除Docker Engine |
-| ~~cocker-machine start d-test~~ | wsldme start d-test | 启动Docker Engine |
-| ~~cocker-machine stop d-test~~ | wsldme stop d-test | 停止Docker Engine |
-| ~~cocker-machine restart d-test~~ | wsldme restart d-test | 重启Docker Engine |
+| ~~docker-machine rm d-test~~ | wsldme rm d-test | 删除Docker Engine |
+| ~~docker-machine start d-test~~ | wsldme start d-test | 启动Docker Engine |
+| ~~docker-machine stop d-test~~ | wsldme stop d-test | 停止Docker Engine |
+| ~~docker-machine restart d-test~~ | wsldme restart d-test | 重启Docker Engine |
