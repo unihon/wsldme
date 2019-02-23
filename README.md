@@ -33,7 +33,7 @@ $ docker-machine -v
 ### 下载
 
 ``` bash
-$ wget ... -O /tmp/wsldme
+$ wget https://github.com/unihon/wsldme/releases/download/v0.1.0/wsldme.sh -O /tmp/wsldme.sh
 ```
 
 ### 配置
@@ -65,7 +65,7 @@ dhcp_upperip="192.168.22.254"
 配置好必要项后安装
 
 ``` bash
-$ chmod 755 /tmp/wsldme && mv -i /tmp/wsldme /usr/local/bin/
+$ chmod 755 /tmp/wsldme.sh && mv -i /tmp/wsldme.sh /usr/local/bin/wsldme
 ```
 
 ## wsldme使用方法
