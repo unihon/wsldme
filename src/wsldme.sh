@@ -48,7 +48,7 @@ showHelp(){
 	printf "%s\n" "Usage: wsldme [OPTIONS] COMMAND"
 	printf "%s\n" "WSL Docker-machine Expansion"
 	printf "%s\n" "Version: $wsldme_version"
-	printf "%s\n\n" "Author: Hon Lee - <https://github.com>"
+	printf "%s\n\n" "Author: Hon Lee - <https://github.com/unihon/wsldme>"
 	printf "%s\n" "Commands:"
 	printf "  %-20s%s\n" "create" "Create a machine"
 	printf "  %-20s%s\n" "rm" "Remove a machine"
@@ -200,18 +200,18 @@ createHost(){
 	cp "$b2d_iso_linux_path_str" "$vh_linux_path_str"
 
 
-	VBM createvm --name $hostname --register || createHost
-	VBM modifyvm $hostname --ostype linux26_64 --memory $os_memory || createHost
+	VBM createvm --name $hostname --register || createErrorH
+	VBM modifyvm $hostname --ostype linux26_64 --memory $os_memory || createErrorH
 
-	VBM createmedium --filename "$vhd_path"  --format $vhd_format --size $vhd_size || createHost
+	VBM createmedium --filename "$vhd_path"  --format $vhd_format --size $vhd_size ||createErrorH 
 
-	VBM storagectl $hostname --name SATA --add sata --hostiocache on || createHost
+	VBM storagectl $hostname --name SATA --add sata --hostiocache on || createErrorH
 
-	VBM storageattach $hostname --storagectl SATA --port 0 --device 0 --type dvddrive --medium "$vh_path/boot2docker.iso" || createHost
-	VBM storageattach $hostname --storagectl SATA --port 1 --device 0 --type hdd --medium "$vhd_path" || createHost
+	VBM storageattach $hostname --storagectl SATA --port 0 --device 0 --type dvddrive --medium "$vh_path/boot2docker.iso" || createErrorH
+	VBM storageattach $hostname --storagectl SATA --port 1 --device 0 --type hdd --medium "$vhd_path" || createErrorH
 
-	VBM modifyvm $hostname --nic1 nat --nictype1 82540EM --cableconnected1 on || createHost
-	VBM modifyvm $hostname --nic2 hostonly --nictype2 82540EM --nicpromisc2 deny --cableconnected2 on --hostonlyadapter2 "$vh_if" || createHost
+	VBM modifyvm $hostname --nic1 nat --nictype1 82540EM --cableconnected1 on || createErrorH
+	VBM modifyvm $hostname --nic2 hostonly --nictype2 82540EM --nicpromisc2 deny --cableconnected2 on --hostonlyadapter2 "$vh_if" || createErrorH
 }
 
 removeHost(){
@@ -298,6 +298,7 @@ hostState(){
 }
 
 createKey(){
+	[ -e ~/.ssh/known_hosts ] && ssh-keygen -f "~/.ssh/known_hosts" -R $host_ip 
 	if [ ! -e ~/.ssh/id_rsa ]
 	then
 		echo "Authentication key generation..."
@@ -393,7 +394,7 @@ case $1 in
 		hostState
 		;;
 	version)
-		echo "$wsldme_version"
+		echo "v$wsldme_version"
 		;;
 	*)
 		showHelp;;

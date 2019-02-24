@@ -15,12 +15,19 @@ wsldme(WSL Docker-machine Expansion) version 0.1.0
 1. [VirtualBox 6.x](https://www.virtualbox.org/wiki/Downloads)
 2. [boot2docker](https://github.com/boot2docker/boot2docker/releases)
 3. [Docker-machine](https://github.com/docker/machine/releases)
+4. [Docker-cli](https://github.com/docker/cli)（可选）
 
 #### 说明
 
-VirtualBox下载及安装在Windows主机上；  
-Docker-machine下载Linux版本并安装在WSL上；  
-boot2docker下载后将ISO文件按个人习惯保存在Windows上面适合的目录。
+- VirtualBox下载及安装在Windows主机上；  
+- Docker-machine下载Linux版本并安装在WSL上；  
+- boot2docker下载后将ISO文件按个人习惯保存在Windows上面适合的目录；
+- Docker-cli，即docker的命令行客户端，利用他可以使得docker的操作更加方便，相关安装方式请参阅[Docker的安装文档](https://docs.docker.com/install/)。  
+需要注意的是，官方文档安装一个完整的Docker（包括服务端、客户端等）。因为Docker的服务端目前无法在WSL上面正常工作，所以，WSL只需要安装docker的命令行客户端即Docker-cli便可。
+
+``` bash
+$ sudo apt-get install docker-ce-cli
+```
 
 Docker-machine安装好后，确保能执行如下命令：
 
@@ -82,3 +89,7 @@ Usage: wsldme [OPTIONS] COMMAND
 | ~~docker-machine start d-test~~ | wsldme start d-test | 启动Docker Engine |
 | ~~docker-machine stop d-test~~ | wsldme stop d-test | 停止Docker Engine |
 | ~~docker-machine restart d-test~~ | wsldme restart d-test | 重启Docker Engine |
+
+## 效果
+
+![show](https://github.com/unihon/wsldme/public/show.jpg)
