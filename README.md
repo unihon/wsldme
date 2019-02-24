@@ -92,4 +92,4 @@ Usage: wsldme [OPTIONS] COMMAND
 
 ## 效果
 
-![show](https://github.com/unihon/wsldme/public/show.jpg)
+![show](https://raw.githubusercontent.com/unihon/wsldme/master/public/show.jpg)
