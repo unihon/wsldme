@@ -298,7 +298,7 @@ hostState(){
 }
 
 createKey(){
-	[ -e ~/.ssh/known_hosts ] && ssh-keygen -f "~/.ssh/known_hosts" -R $host_ip 
+	[ -e ~/.ssh/known_hosts ] && ssh-keygen -f ~/.ssh/known_hosts -R $host_ip 
 	if [ ! -e ~/.ssh/id_rsa ]
 	then
 		echo "Authentication key generation..."
