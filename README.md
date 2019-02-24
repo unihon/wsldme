@@ -39,7 +39,7 @@ $ wget https://github.com/unihon/wsldme/releases/download/v0.1.0/wsldme.sh -O /t
 ### 配置
 
 ``` bash
-$ vim /tmp/wsldme
+$ vim /tmp/wsldme.sh
 ```
 
 ``` bash
