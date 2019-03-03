@@ -23,7 +23,7 @@ wsldme(WSL Docker-machine Expansion) version 0.1.5
 - Docker-machine下载Linux版本并安装在WSL上；  
 - boot2docker下载后将ISO文件按个人习惯保存在Windows上面适合的目录；
 - Docker-cli，即docker的命令行客户端，利用他可以使得docker的操作更加方便，相关安装方式请参阅[Docker的安装文档](https://docs.docker.com/install/)。  
-需要注意的是，官方文档安装一个完整的Docker（包括服务端、客户端等）。因为Docker的服务端目前无法在WSL上面正常工作，所以，WSL只需要安装docker的命令行客户端即Docker-cli便可。
+需要注意，官方文档指导安装的是一个完整的Docker（包括服务端、客户端等）。因为Docker的服务端目前无法在WSL上面正常工作，所以，WSL只需要安装docker的命令行客户端即Docker-cli便可。
 
 ``` bash
 $ sudo apt-get install docker-ce-cli
