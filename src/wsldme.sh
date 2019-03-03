@@ -318,7 +318,7 @@ b2dSh(){
 mkdir -p /var/lib/boot2docker/.ssh
 echo "$ssh_key" > /var/lib/boot2docker/.ssh/authorized_keys
 sudo cp -f /var/lib/boot2docker/.ssh/authorized_keys /home/docker/.ssh
-tar -cvf /var/lib/boot2docker/userdata.tar /var/lib/boot2docker/.ssh --remove-files
+tar -cvf /var/lib/boot2docker/userdata.tar -C /var/lib/boot2docker .ssh --remove-files
 echo 'DOCKER_HOST="-H tcp://0.0.0.0:2376"' > /var/lib/boot2docker/profile
 
 [ "$mirrors_flag" == "-c" ] && sudo sh -c "echo '{\"registry-mirrors\":[\"https://registry.docker-cn.com\"]}' > /etc/docker/daemon.json"
