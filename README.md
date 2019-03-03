@@ -1,6 +1,6 @@
 # wsldme
 
-wsldme(WSL Docker-machine Expansion) version 0.1.0  
+wsldme(WSL Docker-machine Expansion) version 0.1.5  
 一个为WSL编写的Docker-machine扩展，目的是让WSL也能快速、方便的使用及管理Docker。
 
 ## 要求
@@ -40,7 +40,7 @@ $ docker-machine -v
 ### 下载
 
 ``` bash
-$ wget https://github.com/unihon/wsldme/releases/download/v0.1.0/wsldme.sh -O /tmp/wsldme.sh
+$ wget https://github.com/unihon/wsldme/releases/download/v0.1.5/wsldme.sh -O /tmp/wsldme.sh
 ```
 
 ### 配置
@@ -84,7 +84,7 @@ Usage: wsldme [OPTIONS] COMMAND
 
 | docker-machine | wsldme | 说明 |
 | - | - | - |
-| ~~docker-machine create --driver=virtualbox d-test~~ | wsldme create  d-test | 创建Docker Engine |
+| ~~docker-machine create --driver=virtualbox d-test~~ | wsldme create [-c] d-test | 创建Docker Engine，`-c` 中国镜像加速 |
 | ~~docker-machine rm d-test~~ | wsldme rm d-test | 删除Docker Engine |
 | ~~docker-machine start d-test~~ | wsldme start d-test | 启动Docker Engine |
 | ~~docker-machine stop d-test~~ | wsldme stop d-test | 停止Docker Engine |

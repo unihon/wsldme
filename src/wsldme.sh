@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # wsldme - wsl docker-machine extension
-# < https://github.com/unihon/wsldme >
+# <https://github.com/unihon/wsldme>
 # Copyright (c) 2019 Hon Lee
 
-wsldme_version="0.1.0"
+wsldme_version="0.1.5"
 #===============================================
 # configure
 
@@ -31,7 +31,7 @@ dhcp_upperip="192.168.22.254"
 
 # User-friendly settings options
 # user_friendly_eo=true
-wsldme_data_path="$HOME/.wsldme"
+wsldme_data_path="/var/local/wsldme"
 #===============================================
 
 hostname=""
@@ -50,12 +50,13 @@ showHelp(){
 	printf "%s\n" "Version: $wsldme_version"
 	printf "%s\n\n" "Author: Hon Lee - <https://github.com/unihon/wsldme>"
 	printf "%s\n" "Commands:"
-	printf "  %-20s%s\n" "create" "Create a machine"
+	printf "  %-20s%s\n" "create" "Create a machine. \"-c\" flag use Chinese official image acceleration"
 	printf "  %-20s%s\n" "rm" "Remove a machine"
 	printf "  %-20s%s\n" "start" "Start a machine"
 	printf "  %-20s%s\n" "stop" "Stop a machine"
 	printf "  %-20s%s\n" "restart" "Restart a machine"
 	printf "  %-20s%s\n" "status" "Get the status of a machine and update the machine IP if the machine's IP changes"
+	printf "  %-20s%s\n" "rmif" "Remove boot2docker network interface and dhcp server"
 	printf "  %-20s%s\n" "version" "Show the wsldme version"
 	printf "  %-20s%s\n\n" "help" "Shows a list of commands or help for one command"
 }
@@ -308,22 +309,20 @@ createKey(){
 }
 
 b2dSh(){
-	mkdir -p /tmp/wsldme/.ssh/
-	\cp -rf ~/.ssh/id_rsa.pub /tmp/wsldme/.ssh/authorized_keys
-
-	echo "Send id_rsa.pub to boot2docker..."
-	echo -e "\033[1;43mNote\033[0m:The password is \"\033[1;32mtcuser\033[0m\"."
-
-	scp -r -o "StrictHostKeyChecking=no" /tmp/wsldme/.ssh docker@${host_ip}:/var/lib/boot2docker
+	ssh_key=$(cat ~/.ssh/id_rsa.pub)
 
 	echo "Make files..."
 	echo -e "\033[1;43mNote\033[0m:The password is \"\033[1;32mtcuser\033[0m\"."
 
-	ssh -Tq docker@${host_ip} << EOF
+	ssh -Tq -o "StrictHostKeyChecking=no" docker@${host_ip} << EOF
+mkdir -p /var/lib/boot2docker/.ssh
+echo "$ssh_key" > /var/lib/boot2docker/.ssh/authorized_keys
 sudo cp -f /var/lib/boot2docker/.ssh/authorized_keys /home/docker/.ssh
-sudo tar -cvf /var/lib/boot2docker/userdata.tar /var/lib/boot2docker/.ssh
-sudo rm -rf /var/lib/boot2docker/.ssh
-sudo echo "DOCKER_HOST='-H tcp://0.0.0.0:2376'" > /var/lib/boot2docker/profile
+tar -cvf /var/lib/boot2docker/userdata.tar /var/lib/boot2docker/.ssh --remove-files
+echo 'DOCKER_HOST="-H tcp://0.0.0.0:2376"' > /var/lib/boot2docker/profile
+
+[ "$mirrors_flag" == "-c" ] && sudo sh -c "echo '{\"registry-mirrors\":[\"https://registry.docker-cn.com\"]}' > /etc/docker/daemon.json"
+
 sudo /etc/init.d/docker restart
 
 for i in \`seq 30\`
@@ -356,19 +355,64 @@ initHost(){
 |                                               |
 +-----------------------------------------------+
 
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+ ssh docker@$host_ip                           
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+ eval \$(docker-machine env $hostname)         
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
 EOF
+}
+
+# delete the interface and dhcp server
+rmIfAndServer(){
+	if [ -e "$wsldme_data_path"/wsldme_data ]
+	then
+		vh_if=$(awk -F = '/^wsldme_docker_if="(.*)"/ {gsub(/(")/,"",$2);print $2}' "$wsldme_data_path"/wsldme_data)
+		if [ "$vh_if" == "" ]
+		then
+			echo "Do not exist interface."
+			exit
+		fi
+	else
+		echo "Do not exist interface."
+		exit
+	fi
+
+	if_state=$(VBM list hostonlyifs|awk -F ':' -v IF="$vh_if" '/^Name:/ {gsub(/\r|^[ ]/,"",$2);if($2==IF){print "yes";exit}}')
+
+	if [ "$if_state" != "yes" ] 
+	then
+		echo "Do not exist interface."
+		exit
+	fi
+
+	VBM dhcpserver remove --ifname "$vh_if" && VBM hostonlyif remove "$vh_if" && echo "Remove interface and dhcp server successfully!"
 }
 
 #-----------------------------------------------
 
-hostname=$(echo $2|sed '/\s/d')
+if [ $# -eq 2 ]
+then
+	hostname=$(echo $2|sed '/\s/d')
+elif [ $# -ge 3 ]
+then
+	if [ "$2" != "-c" ]
+	then
+		echo -e "Flag error.\n"
+		showHelp
+		exit
+	fi
+	mirrors_flag=$2
+	hostname=$(echo $3|sed '/\s/d')
+fi
 
 case $1 in
 	create)
 		initHost
 		;;
 	rm)
-		echo -n "Are you sure remove\"$hostname\"? (y/n):"
+		echo -n "Are you sure remove \"$hostname\"? (y/n):"
 		read ops
 		[ "$ops" == "n" ] && exit
 		stopHost
@@ -393,8 +437,14 @@ case $1 in
 	status)
 		hostState
 		;;
+	rmif)
+		echo -n "Are you sure remove interface and dhcp server? (y/n):"
+		read ops
+		[ "$ops" == "n" ] && exit
+		rmIfAndServer
+		;;
 	version)
-		echo "v$wsldme_version"
+		echo "wsldme v$wsldme_version"
 		;;
 	*)
 		showHelp;;
