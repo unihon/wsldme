@@ -3,7 +3,7 @@
 # <https://github.com/unihon/wsldme>
 # Copyright (c) 2019 Hon Lee
 
-wsldme_version="0.1.5"
+wsldme_version="0.1.6"
 #===============================================
 # configure
 
@@ -79,7 +79,7 @@ EOF
 		return
 	fi
 
-	if_state=$(VBM list hostonlyifs|awk -F ':' -v IF="$vh_if" '/^Name:/ {gsub(/\r|^[ ]/,"",$2);if($2==IF){print "yes";exit}}')
+	if_state=$(VBM list hostonlyifs|awk -F ':' -v IF="$vh_if" '/^Name:/ {gsub(/\r|^\s*/,"",$2);if($2==IF){print "yes";exit}}')
 	if [ "$if_state" != "yes" ] 
 	then
 		createIf
@@ -154,7 +154,7 @@ checkState(){
 createIf(){
 	echo "Create an interface..."
 
-	vh_if=$(VBM hostonlyif create|sed -r -e "s/Interface\s'(.*?)'\swas\ssuccessfully\screated/\1/g" -e "s/\r//g")
+	vh_if="$(VBM hostonlyif create|sed -r -e "s/Interface\s'(.*?)'\swas\ssuccessfully\screated/\1/g" -e "s/\r//g")"
 
 	if [ "$vh_if" == "" ]
 	then
@@ -321,7 +321,7 @@ sudo cp -f /var/lib/boot2docker/.ssh/authorized_keys /home/docker/.ssh
 tar -cvf /var/lib/boot2docker/userdata.tar -C /var/lib/boot2docker .ssh --remove-files
 echo 'DOCKER_HOST="-H tcp://0.0.0.0:2376"' > /var/lib/boot2docker/profile
 
-[ "$mirrors_flag" == "-c" ] && sudo sh -c "echo '{\"registry-mirrors\":[\"https://registry.docker-cn.com\"]}' > /etc/docker/daemon.json"
+[ "$mirrors_flag" == "-c" ] && sudo sh -c "echo '{\"registry-mirrors\":[\"http://f1361db2.m.daocloud.io\"]}' > /etc/docker/daemon.json"
 
 sudo /etc/init.d/docker restart
 
@@ -368,7 +368,7 @@ EOF
 rmIfAndServer(){
 	if [ -e "$wsldme_data_path"/wsldme_data ]
 	then
-		vh_if=$(awk -F = '/^wsldme_docker_if="(.*)"/ {gsub(/(")/,"",$2);print $2}' "$wsldme_data_path"/wsldme_data)
+		vh_if="$(awk -F = '/^wsldme_docker_if="(.*)"/ {gsub(/(")/,"",$2);print $2}' "$wsldme_data_path"/wsldme_data)"
 		if [ "$vh_if" == "" ]
 		then
 			echo "Do not exist interface."
@@ -379,7 +379,7 @@ rmIfAndServer(){
 		exit
 	fi
 
-	if_state=$(VBM list hostonlyifs|awk -F ':' -v IF="$vh_if" '/^Name:/ {gsub(/\r|^[ ]/,"",$2);if($2==IF){print "yes";exit}}')
+	if_state=$(VBM list hostonlyifs|awk -F ':' -v IF="$vh_if" '/^Name:/ {gsub(/\r|^\s*/,"",$2);if($2==IF){print "yes";exit}}')
 
 	if [ "$if_state" != "yes" ] 
 	then
