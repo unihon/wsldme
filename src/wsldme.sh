@@ -79,6 +79,7 @@ EOF
 		return
 	fi
 
+	# if_state have some bug
 	if_state=$(VBM list hostonlyifs|awk -F ':' -v IF="$vh_if" '/^Name:/ {gsub(/\r|^\s*/,"",$2);if($2==IF){print "yes";exit}}')
 	if [ "$if_state" != "yes" ] 
 	then
